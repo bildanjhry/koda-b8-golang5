@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/md5"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,21 +14,31 @@ type User struct {
 	FirstName string
 	LastName  string
 	Email     string
+	Password  [16]byte
+}
+
+type AuhtForm struct {
+	FirstName string
+	LastName  string
+	Email     string
 	Password  string
 }
 
 type Auth interface {
-	Login()
+	Login(Email *string, Password *string)
+	Register(FirstName *string, LastName *string, Email *string, Password *string)
 	ConcatName() string
 }
 
-func (u User) Register(FirstName *string, LastName *string, Email *string, Password *string) {
+func (u AuhtForm) Register(FirstName *string, LastName *string, Email *string, Password *string) {
+
+	encPass := md5.Sum([]byte(*Password))
 	form := User{
 		id:        *FirstName + *Password,
 		FirstName: *FirstName,
 		LastName:  *LastName,
 		Email:     *Email,
-		Password:  *Password,
+		Password:  encPass,
 	}
 	var back string
 	accounts = append(accounts, form)
@@ -48,7 +59,7 @@ func (u User) ConcatName(FirstName string, LastName string) string {
 	return FirstName + " " + LastName
 }
 
-func (u User) Login(Email *string, Password *string) {
+func (u AuhtForm) Login(Email *string, Password *string) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Printf("%s\n\n", r)
@@ -62,8 +73,7 @@ func (u User) Login(Email *string, Password *string) {
 	}
 
 	for x := range accounts {
-		fmt.Println(accounts[x].Email)
-		if accounts[x].Email == *Email && accounts[x].Password == *Password {
+		if k := md5.Sum([]byte(*Password)); accounts[x].Email == *Email && k == accounts[x].Password {
 			fmt.Println("\n*Login Berhasil")
 			successLogin(accounts[x])
 		} else {
@@ -84,7 +94,7 @@ func homeMenu() string {
 	return point
 }
 
-func confirmRegister(form *User) int {
+func confirmRegister(form *AuhtForm) int {
 	var confirm string
 
 	fmt.Printf("\n*Apakah sudah benar?")
@@ -103,7 +113,7 @@ func confirmRegister(form *User) int {
 
 func askingRegister() {
 	clearTerm()
-	form := User{
+	form := AuhtForm{
 		FirstName: "",
 		LastName:  "",
 		Email:     "",
@@ -120,7 +130,7 @@ func askingRegister() {
 	fmt.Scanf("%s", &form.Password)
 
 	if c := confirmRegister(&form); c == 1 {
-		defer User.Register(form, &form.FirstName, &form.LastName, &form.Email, &form.Password)
+		form.Register(&form.FirstName, &form.LastName, &form.Email, &form.Password)
 	} else {
 		askingRegister()
 	}
@@ -134,6 +144,7 @@ func successLogin(user User) {
 	fmt.Println("\n==========================")
 	fmt.Printf("Nama: %s", User.ConcatName(user, user.FirstName, user.LastName))
 	fmt.Printf("\nEmail: %s", user.Email)
+	fmt.Printf("\nPassword: %x", user.Password)
 	fmt.Println("\n==========================")
 	fmt.Println("\nTodo List :")
 	fmt.Println("- Kosong -")
@@ -150,7 +161,7 @@ func successLogin(user User) {
 func askingLogin() {
 	clearTerm()
 
-	form := User{
+	form := AuhtForm{
 		Email:    "",
 		Password: "",
 	}
@@ -160,7 +171,7 @@ func askingLogin() {
 	fmt.Print("Masukan Password: ")
 	fmt.Scanf("%s", &form.Password)
 
-	defer User.Login(form, &form.Email, &form.Password)
+	form.Login(&form.Email, &form.Password)
 }
 
 func askingForgotPass() {
