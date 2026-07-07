@@ -53,7 +53,7 @@ func (u AuthForm) Register(FirstName *string, LastName *string, Email *string, P
 	fmt.Scanf("%s", &back)
 	fmt.Println(back)
 	utils.ClearTerm(0, "")
-	defer main()
+	defer aksingHomeAuth()
 }
 
 func (u User) ConcatName(FirstName string, LastName string) string {
@@ -71,7 +71,7 @@ func (u AuthForm) Login(Email *string, Password *string) {
 
 	if len(accounts) < 1 {
 		utils.ClearTerm(1, "*Akun masih kosong*")
-		defer main()
+		defer aksingHomeAuth()
 	}
 
 	for x := range accounts {
@@ -81,18 +81,6 @@ func (u AuthForm) Login(Email *string, Password *string) {
 		}
 	}
 	panic("*Email atau password salah")
-}
-
-func homeMenu() string {
-	utils.ClearTerm(0, "")
-	var point string
-	fmt.Println("- SYSTEM_AUTH -")
-	fmt.Printf("\n1. Login\n2. Register\n3. Forgot Password\n\n")
-	fmt.Println("0. Exit")
-	fmt.Printf("\nSilahkan masukan pilihan anda: ")
-	fmt.Scanf("%s", &point)
-
-	return point
 }
 
 func confirmRegister(form *AuthForm) Error {
@@ -178,7 +166,7 @@ func successLogin(user User) {
 	fmt.Scanf("%s", &conLgOut)
 	if conLgOut == "1" {
 		utils.ClearTerm(0, "")
-		defer main()
+		defer aksingHomeAuth()
 	}
 
 }
@@ -202,16 +190,23 @@ func askingForgotPass() {
 	fmt.Println("Hello")
 }
 
-func main() {
+func aksingHomeAuth() {
+	utils.ClearTerm(0, "")
+	var point string
+	fmt.Println("- SYSTEM_AUTH -")
+	fmt.Printf("\n1. Login\n2. Register\n3. Forgot Password\n\n")
+	fmt.Println("0. Exit")
+	fmt.Printf("\nSilahkan masukan pilihan anda: ")
+	fmt.Scanf("%s", &point)
 
 	defer func() {
 		if val := recover(); val != nil {
 			fmt.Printf("Input dengan %s tidak tersedia\n\n", val)
-			main()
+			aksingHomeAuth()
 		}
 	}()
 
-	switch value := homeMenu(); value {
+	switch point {
 	case "1":
 		utils.ClearTerm(0, "")
 		askingLogin()
@@ -226,6 +221,10 @@ func main() {
 		fmt.Println("- SYSTEM_SHUTDOWN -")
 		os.Exit(0)
 	default:
-		panic(value)
+		panic(point)
 	}
+}
+
+func main() {
+	aksingHomeAuth()
 }
