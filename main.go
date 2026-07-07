@@ -17,7 +17,7 @@ type User struct {
 	Password  [16]byte
 }
 
-type AuhtForm struct {
+type AuthForm struct {
 	FirstName string
 	LastName  string
 	Email     string
@@ -30,7 +30,7 @@ type Auth interface {
 	ConcatName() string
 }
 
-func (u AuhtForm) Register(FirstName *string, LastName *string, Email *string, Password *string) {
+func (u AuthForm) Register(FirstName *string, LastName *string, Email *string, Password *string) {
 
 	encPass := md5.Sum([]byte(*Password))
 	form := User{
@@ -59,7 +59,7 @@ func (u User) ConcatName(FirstName string, LastName string) string {
 	return FirstName + " " + LastName
 }
 
-func (u AuhtForm) Login(Email *string, Password *string) {
+func (u AuthForm) Login(Email *string, Password *string) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Printf("%s\n\n", r)
@@ -76,10 +76,9 @@ func (u AuhtForm) Login(Email *string, Password *string) {
 		if k := md5.Sum([]byte(*Password)); accounts[x].Email == *Email && k == accounts[x].Password {
 			fmt.Println("\n*Login Berhasil")
 			successLogin(accounts[x])
-		} else {
-			panic("*Email atau password salah")
 		}
 	}
+	panic("*Email atau password salah")
 }
 
 func homeMenu() string {
@@ -94,8 +93,19 @@ func homeMenu() string {
 	return point
 }
 
-func confirmRegister(form *AuhtForm) int {
+func confirmRegister(form *AuthForm) int {
 	var confirm string
+	defer func() {
+		if a := recover(); a != nil {
+			fmt.Println(a)
+		}
+	}()
+
+	for _, val := range accounts {
+		if form.Email == val.Email {
+			panic("Email sudah digunakan")
+		}
+	}
 
 	fmt.Printf("\n*Apakah sudah benar?")
 	fmt.Printf("\nNama depan kamu:  %s", form.FirstName)
@@ -113,7 +123,7 @@ func confirmRegister(form *AuhtForm) int {
 
 func askingRegister() {
 	clearTerm()
-	form := AuhtForm{
+	form := AuthForm{
 		FirstName: "",
 		LastName:  "",
 		Email:     "",
@@ -161,7 +171,7 @@ func successLogin(user User) {
 func askingLogin() {
 	clearTerm()
 
-	form := AuhtForm{
+	form := AuthForm{
 		Email:    "",
 		Password: "",
 	}
