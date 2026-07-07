@@ -3,8 +3,8 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
+	"koda-b8-golang5/utils"
 	"os"
-	"os/exec"
 )
 
 var accounts = []User{}
@@ -15,6 +15,12 @@ type User struct {
 	LastName  string
 	Email     string
 	Password  [16]byte
+}
+
+type Error struct {
+	status  int
+	code    string
+	message string
 }
 
 type AuthForm struct {
@@ -30,7 +36,7 @@ type Auth interface {
 	ConcatName() string
 }
 
-func (u AuthForm) Register(FirstName *string, LastName *string, Email *string, Password *string) {
+func (u AuthForm) Register(FirstName *string, LastName *string, Email *string, Password *string, res Error) {
 
 	encPass := md5.Sum([]byte(*Password))
 	form := User{
@@ -42,17 +48,12 @@ func (u AuthForm) Register(FirstName *string, LastName *string, Email *string, P
 	}
 	var back string
 	accounts = append(accounts, form)
+	fmt.Printf("\n*%s\n", res.message)
 	fmt.Print("\nTekan Enter untuk kembali ")
 	fmt.Scanf("%s", &back)
 	fmt.Println(back)
-
+	utils.ClearTerm(0, "")
 	defer main()
-}
-
-func clearTerm() {
-	c := exec.Command("clear")
-	c.Stdout = os.Stdout
-	c.Run()
 }
 
 func (u User) ConcatName(FirstName string, LastName string) string {
@@ -63,12 +64,13 @@ func (u AuthForm) Login(Email *string, Password *string) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Printf("%s\n\n", r)
+			utils.ClearTerm(1, "*Email atau password salah")
 			askingLogin()
 		}
 	}()
 
 	if len(accounts) < 1 {
-		fmt.Printf("\n*Akun masih kosong*\n\n")
+		utils.ClearTerm(1, "*Akun masih kosong*")
 		defer main()
 	}
 
@@ -82,7 +84,7 @@ func (u AuthForm) Login(Email *string, Password *string) {
 }
 
 func homeMenu() string {
-	clearTerm()
+	utils.ClearTerm(0, "")
 	var point string
 	fmt.Println("- SYSTEM_AUTH -")
 	fmt.Printf("\n1. Login\n2. Register\n3. Forgot Password\n\n")
@@ -93,17 +95,26 @@ func homeMenu() string {
 	return point
 }
 
-func confirmRegister(form *AuthForm) int {
+func confirmRegister(form *AuthForm) Error {
 	var confirm string
+
+	resRegis := Error{
+		status:  0,
+		code:    "",
+		message: "",
+	}
+
 	defer func() {
 		if a := recover(); a != nil {
-			fmt.Println(a)
+			resRegis.status = 1
 		}
 	}()
 
 	for _, val := range accounts {
 		if form.Email == val.Email {
-			panic("Email sudah digunakan")
+			resRegis.message = "*Email sudah digunakan"
+			resRegis.code = "FAILED_CREATE_ACCOUNT"
+			panic(1)
 		}
 	}
 
@@ -115,14 +126,16 @@ func confirmRegister(form *AuthForm) int {
 	fmt.Scanf("%s", &confirm)
 
 	if confirm == "y" {
-		return 1
+		resRegis.code = "SUCCESS_CREATE_ACCOUNT"
+		resRegis.message = "Berhasil buat akun"
+		return resRegis
 	}
 
-	return 0
+	return resRegis
 }
 
 func askingRegister() {
-	clearTerm()
+
 	form := AuthForm{
 		FirstName: "",
 		LastName:  "",
@@ -139,16 +152,17 @@ func askingRegister() {
 	fmt.Print("Masukan password anda: ")
 	fmt.Scanf("%s", &form.Password)
 
-	if c := confirmRegister(&form); c == 1 {
-		form.Register(&form.FirstName, &form.LastName, &form.Email, &form.Password)
+	if res := confirmRegister(&form); res.status == 0 {
+		form.Register(&form.FirstName, &form.LastName, &form.Email, &form.Password, res)
 	} else {
+		utils.ClearTerm(1, res.message)
 		askingRegister()
 	}
 
 }
 
 func successLogin(user User) {
-	clearTerm()
+	utils.ClearTerm(0, "")
 	var conLgOut string
 	fmt.Println("******* WELCOME ON BOARD, CAPTAIN! ********")
 	fmt.Println("\n==========================")
@@ -163,13 +177,13 @@ func successLogin(user User) {
 	fmt.Print("\n\nPilih Aksi: ")
 	fmt.Scanf("%s", &conLgOut)
 	if conLgOut == "1" {
+		utils.ClearTerm(0, "")
 		defer main()
 	}
 
 }
 
 func askingLogin() {
-	clearTerm()
 
 	form := AuthForm{
 		Email:    "",
@@ -199,14 +213,16 @@ func main() {
 
 	switch value := homeMenu(); value {
 	case "1":
+		utils.ClearTerm(0, "")
 		askingLogin()
 	case "2":
+		utils.ClearTerm(0, "")
 		askingRegister()
 	case "3":
+		utils.ClearTerm(0, "")
 		askingForgotPass()
 	case "0":
-		clearTerm()
-		fmt.Println("Sampai jumpa!")
+		utils.ClearTerm(1, "Sampai Jumpa!")
 		fmt.Println("- SYSTEM_SHUTDOWN -")
 		os.Exit(0)
 	default:
