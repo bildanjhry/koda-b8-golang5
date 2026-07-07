@@ -40,7 +40,7 @@ func (u AuthForm) Register(FirstName *string, LastName *string, Email *string, P
 
 	encPass := md5.Sum([]byte(*Password))
 	form := User{
-		id:        *FirstName + *Password,
+		id:        *FirstName + *Email,
 		FirstName: *FirstName,
 		LastName:  *LastName,
 		Email:     *Email,
@@ -117,9 +117,12 @@ func confirmRegister(form *AuthForm) Error {
 		resRegis.code = "SUCCESS_CREATE_ACCOUNT"
 		resRegis.message = "Berhasil buat akun"
 		return resRegis
+	} else {
+		resRegis.code = "CANCEL_CREATE_ACCOUNT"
+		resRegis.status = 1
+		return resRegis
 	}
 
-	return resRegis
 }
 
 func askingRegister() {
@@ -143,7 +146,11 @@ func askingRegister() {
 	if res := confirmRegister(&form); res.status == 0 {
 		form.Register(&form.FirstName, &form.LastName, &form.Email, &form.Password, res)
 	} else {
-		utils.ClearTerm(1, res.message)
+		if res.code == "CANCEL_CREATE_ACCOUNT" {
+			utils.ClearTerm(0, "")
+		} else {
+			utils.ClearTerm(1, res.message)
+		}
 		askingRegister()
 	}
 
@@ -187,7 +194,29 @@ func askingLogin() {
 }
 
 func askingForgotPass() {
-	fmt.Println("Hello")
+	var email string
+	var newPassword string
+
+	defer func() {
+		if val := recover(); val != nil {
+			utils.ClearTerm(1, "Email tidak ditemukan")
+			askingForgotPass()
+		}
+	}()
+
+	fmt.Print("Masukan email anda: ")
+	fmt.Scanf("%s", &email)
+	for x := range accounts {
+		if email == accounts[x].Email {
+			fmt.Print("Silahkan buat password baru: ")
+			fmt.Scanf("%s", &newPassword)
+			encPass := md5.Sum([]byte(newPassword))
+			accounts[x].Password = encPass
+			utils.ClearTerm(1, "Berhasil ubah password")
+			askingLogin()
+		}
+	}
+	panic(1)
 }
 
 func aksingHomeAuth() {
