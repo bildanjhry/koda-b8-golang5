@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 )
 
 var accounts = []User{}
@@ -13,6 +14,11 @@ type User struct {
 	LastName  string
 	Email     string
 	Password  string
+}
+
+type Auth interface {
+	Login()
+	ConcatName() string
 }
 
 func (u User) Register(FirstName *string, LastName *string, Email *string, Password *string) {
@@ -28,7 +34,14 @@ func (u User) Register(FirstName *string, LastName *string, Email *string, Passw
 	fmt.Print("\nTekan Enter untuk kembali ")
 	fmt.Scanf("%s", &back)
 	fmt.Println(back)
+
 	defer main()
+}
+
+func clearTerm() {
+	c := exec.Command("clear")
+	c.Stdout = os.Stdout
+	c.Run()
 }
 
 func (u User) ConcatName(FirstName string, LastName string) string {
@@ -60,8 +73,9 @@ func (u User) Login(Email *string, Password *string) {
 }
 
 func homeMenu() string {
+	clearTerm()
 	var point string
-	fmt.Println("***** SELAMAT DATANG ******")
+	fmt.Println("- SYSTEM_AUTH -")
 	fmt.Printf("\n1. Login\n2. Register\n3. Forgot Password\n\n")
 	fmt.Println("0. Exit")
 	fmt.Printf("\nSilahkan masukan pilihan anda: ")
@@ -88,6 +102,7 @@ func confirmRegister(form *User) int {
 }
 
 func askingRegister() {
+	clearTerm()
 	form := User{
 		FirstName: "",
 		LastName:  "",
@@ -113,12 +128,16 @@ func askingRegister() {
 }
 
 func successLogin(user User) {
+	clearTerm()
 	var conLgOut string
-
+	fmt.Println("******* WELCOME ON BOARD, CAPTAIN! ********")
 	fmt.Println("\n==========================")
-	fmt.Printf("\nNama: %s", User.ConcatName(user, user.FirstName, user.LastName))
+	fmt.Printf("Nama: %s", User.ConcatName(user, user.FirstName, user.LastName))
 	fmt.Printf("\nEmail: %s", user.Email)
-	fmt.Println("\n\n==========================")
+	fmt.Println("\n==========================")
+	fmt.Println("\nTodo List :")
+	fmt.Println("- Kosong -")
+	fmt.Println("\n==========================")
 	fmt.Printf("\n1. Logout")
 	fmt.Print("\n\nPilih Aksi: ")
 	fmt.Scanf("%s", &conLgOut)
@@ -129,6 +148,7 @@ func successLogin(user User) {
 }
 
 func askingLogin() {
+	clearTerm()
 
 	form := User{
 		Email:    "",
@@ -164,7 +184,9 @@ func main() {
 	case "3":
 		askingForgotPass()
 	case "0":
-		fmt.Println("Terimakasih sudah berkunjung")
+		clearTerm()
+		fmt.Println("Sampai jumpa!")
+		fmt.Println("- SYSTEM_SHUTDOWN -")
 		os.Exit(0)
 	default:
 		panic(value)
