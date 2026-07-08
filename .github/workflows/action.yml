@@ -82,7 +82,7 @@ jobs:
           files: |
             orion-k.zip
   
-  release-app-exe:
+  release-binnary-app:
     runs-on: ubuntu-latest
     steps: 
       - name: Get Source
@@ -97,10 +97,18 @@ jobs:
         run : go mod tidy
 
       - name: Build Linux App
-        run : go build -o orion_k-linux-x64 main.go
+        run : go build -o orion_k-linux-amdx64 main.go
+
+      - name: Build Windows App
+        run: GOOS=windows GOARCH=amd64 go build -o orion_k-windows.exe main.go
+      
+      - name: Build MacOS ARM64 App
+        run: GOOS=darwin GOARCH=arm64 go build -o orion_k-darwin-arm64 main.go  
 
       - name: Release Final App
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            orion_k-linux-x64
+            orion_k-linux-amdx64
+            orion_k-windows.exe
+            orion_k-darwin-arm64
