@@ -1,0 +1,28 @@
+name : Orion-K 
+run-name: ${{github.actor}}'s workflows
+on : 
+  push :
+    tag :
+      - "v*"
+jobs:
+  build-image:
+    runs-on : ubuntu-latest
+    steps :
+      - name: Build docker image
+        run : docker build . -t orion-k:latest
+
+      - name: Login GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secret.GITHUB_TOKEN}}
+
+      - name: Push docker image to container registry
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          run: docker build . -t ghcr.io/${{github.username}}/orion-k:latest
+          tags: ghcr.io/${{github.username}}/orion-k:latest
+          run: docker push ghcr.io/${{github.username}}/orion-k:latest 
