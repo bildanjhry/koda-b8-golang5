@@ -1,4 +1,4 @@
-FROM golang:alpine as Builder
+FROM golang:alpine AS builder
 WORKDIR /app
 COPY . .
 RUN go mod tidy
