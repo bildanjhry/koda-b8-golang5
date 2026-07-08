@@ -2,7 +2,7 @@ name : Orion-K
 run-name: ${{github.actor}}'s workflows
 on : 
   push :
-    tag :
+    tags :
       - "v*"
 jobs:
   build-image:
