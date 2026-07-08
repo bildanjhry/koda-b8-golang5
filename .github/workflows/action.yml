@@ -97,7 +97,7 @@ jobs:
         run : go mod tidy
 
       - name: Build Linux App
-        run : go build -o orion_k-linux-64 main.go
+        run : go build -o orion_k-linux-x64 main.go
 
       - name: Release Final App
         uses: softprops/action-gh-release@v3
