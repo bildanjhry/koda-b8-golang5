@@ -103,4 +103,4 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            orion_k-linux-64
+            orion_k-linux-x64
