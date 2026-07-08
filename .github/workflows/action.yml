@@ -51,3 +51,21 @@ jobs:
           id: orion-k-id
           path: orion_k
 
+  release-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: action/download-artifact@v8
+        with:
+          name: orion-K
+          path: orion_k
+
+      - name: Compress Artifact
+        run: zip -r orion-k.zip ./*
+
+      - name: Release Final App
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            orion-k.zip
+
