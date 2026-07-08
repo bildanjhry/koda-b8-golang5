@@ -30,10 +30,12 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          tags: ghcr.io/${{ github.actor}}/orion-k:latest
           run: docker push ghcr.io/${{github.actor}}/orion-k:latest 
       
   uploads-artifact:
     runs-on: ubuntu-latest
+    needs: build-image
     steps:
       - name: Prepare
         uses: actions/checkout@v4
