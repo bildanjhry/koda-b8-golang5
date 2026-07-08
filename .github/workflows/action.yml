@@ -65,7 +65,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v8
         with:
-          name: orion-K
+          name: orion-k
           path: orion_k
 
       - name: Compress Artifact
