@@ -16,12 +16,12 @@ jobs:
           password: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build docker image to push 
-        run: docker build . -t ghcr.io/${{github.actor}}/orion-k:latest
+        run: docker build . -t ghcr.io/${{github.repository}}/orion-k:latest
 
       - name: Push docker image to container registry
         uses: docker/build-push-action@v7
         with:
           context: .
           push: true
-          tags: ghcr.io/${{github.actor}}/orion-k:latest
-          run: docker push ghcr.io/${{github.actor}}/orion-k:latest 
+          tags: ghcr.io/${{github.repository}}/orion-k:latest
+          run: docker push ghcr.io/${{github.repository}}/orion-k:latest 
