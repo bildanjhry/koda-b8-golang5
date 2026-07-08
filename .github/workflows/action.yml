@@ -22,9 +22,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: true
           file: ./Dockerfile
-          tags: ghcr.io/${{github.repository}}/orion-k:latest
           run: docker build . -t ghcr.io/${{github.actor}}/orion-k:latest
 
       - name: Push docker image to container registry
