@@ -97,7 +97,7 @@ jobs:
         run : go mod tidy
 
       - name: Build Linux App
-        run : go build -o orion_k-linux-amdx64 main.go
+        run : go build -o orion_k-linux-amd64 main.go
 
       - name: Build Windows App
         run: GOOS=windows GOARCH=amd64 go build -o orion_k-windows.exe main.go
@@ -109,6 +109,6 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            orion_k-linux-amdx64
+            orion_k-linux-amd64
             orion_k-windows.exe
             orion_k-darwin-arm64
